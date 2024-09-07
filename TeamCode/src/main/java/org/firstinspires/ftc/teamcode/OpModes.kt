@@ -5,6 +5,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import empireu.coyote.*
 import org.firstinspires.ftc.teamcode.dashboard.CoyoteConfig.*
 import org.firstinspires.ftc.teamcode.dashboard.LocalizerConfig
@@ -15,6 +17,50 @@ import java.io.FileOutputStream
 import java.lang.Integer.parseInt
 import java.net.URL
 import kotlin.math.PI
+
+@TeleOp(name = "ViperOneRevolution")
+class ViperOneRevolutionOp : LinearOpMode() {
+
+    // Declare the motor
+    private lateinit var motorViper: DcMotor
+
+    private var pos = 0
+
+    override fun runOpMode() {
+        // Initialize the motor by mapping it to the hardware configuration
+        motorViper = hardwareMap.get(DcMotor::class.java, "viper")
+
+        // Reset motor encoder and set it to run using encoder
+        motorViper.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        motorViper.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        // Wait for the game to start (driver presses PLAY)
+        waitForStart()
+
+        // Run until the end of the match (driver presses STOP)
+        while (opModeIsActive()) {
+            // If "A" button is pressed, move forward (negative direction)
+            if (gamepad1.a && pos >= -282000) {
+                motorViper.power = -0.7 // Move forward
+                pos -= 1
+            }
+            // If "B" button is pressed, move backward (positive direction)
+            else if (gamepad1.b && pos <= -1200) {
+                motorViper.power = 0.7 // Move backward
+                pos += 1
+            }
+            // If neither button is pressed, stop the motor
+            else {
+                motorViper.power = 0.0
+            }
+
+            // Telemetry to display current position
+            telemetry.addData("Current Position", pos)
+            telemetry.update()
+        }
+    }
+}
+
 
 @TeleOp(name = "Motor Test", group = "Tuning")
 class MotorTestOpMode: LinearOpMode() {
